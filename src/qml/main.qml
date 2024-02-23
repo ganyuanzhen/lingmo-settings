@@ -23,6 +23,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Window 2.3
 import QtGraphicalEffects 1.0
 import LingmoUI 1.0 as LingmoUI
+import Lingmo.Settings 1.0 as LS
 
 LingmoUI.Window {
     id: rootWindow
@@ -42,6 +43,14 @@ LingmoUI.Window {
 
     LayoutMirroring.enabled: Qt.application.layoutDirection === Qt.RightToLeft
     LayoutMirroring.childrenInherit: true
+
+    Component.onCompleted: {
+        textHttp();
+    }
+
+    LS.UpdateManager {
+        id: updateManager
+    }
 
     LingmoUI.WindowBlur {
         view: rootWindow

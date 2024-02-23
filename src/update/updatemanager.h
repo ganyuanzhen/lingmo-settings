@@ -31,7 +31,10 @@ class UpdateManager : public QObject {
   Q_INVOKABLE void handle_update_data(QNetworkReply* reply);
 
  signals:
-  void UpdateDataReply(QString data);
+  void updateDataReply(QString data);
+
+ public slots:
+  void startCheckforUpdate();
 };
 
 #endif  // UPDATEMANAGER_H

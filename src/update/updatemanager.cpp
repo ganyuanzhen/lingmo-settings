@@ -18,6 +18,8 @@ void UpdateManager::check_for_update() {
 bool UpdateManager::hasUpdate() { return has_updates_; }
 
 void UpdateManager::handle_update_data(QNetworkReply* reply) {
-  emit UpdateDataReply(reply->readAll());
+  emit updateDataReply(reply->readAll());
   reply->deleteLater();
 }
+
+void UpdateManager::startCheckforUpdate() { this->check_for_update(); }

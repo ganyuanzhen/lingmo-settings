@@ -49,9 +49,7 @@ ColumnLayout {
         interactive: false
         visible: true
 
-        model: ListModel {
-            id: updateListModel
-        }
+        model: control.updateListModel
 
         delegate: UpdateItem {
                 width: ListView.view.width
@@ -76,6 +74,6 @@ ColumnLayout {
                     additional_info: "This update improves user experience and system stablity."
                 }
         ];
-        updateListModel.append(data);
+        control.updateListModel.append(data);
     }
 }

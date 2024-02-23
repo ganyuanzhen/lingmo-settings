@@ -29,7 +29,15 @@ ItemPage {
     headerTitle: qsTr("System Update")
 
     // Whether updates are available
-    property bool hasupdate_: true
+    property bool hasupdate_: false
+
+    property bool isupdating: false
+
+    property bool ischeckingupdate: false
+
+    property var mUpdateManager: UpdateManager {}
+
+    property var updateListModel: ListModel {}
 
     Scrollable {
         anchors.fill: parent
@@ -42,64 +50,10 @@ ItemPage {
 
             // 状态栏
             RoundedItem {
-                Layout.fillWidth: true
-                height: 100
-                RowLayout {
-                    spacing: LUI.Units.largeSpacing
-
-                    Item {
-                        width: 80
-                        height: 80
-
-                        Image {
-                            source: LUI.Theme.darkMode ? "qrc:/images/dark/changes-white" : "qrc:/images/light/changes"
-                            width: parent.width
-                            height: parent.height
-                            fillMode: Image.PreserveAspectCrop
-                            antialiasing: true
-                            smooth: true
-                            anchors.centerIn: parent
-                        }
-                    }
-
-                    Item {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-
-                        // Center promote text
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-
-                            Label {
-                                id: updateText
-                                text: qsTr("You're up to date")
-                                Layout.fillHeight: true
-                                width: parent.width
-                                font.pointSize: 20
-                                font.bold: true
-                                verticalAlignment: Text.AlignVCenter
-                                horizontalAlignment: Text.AlignLeft
-                            }
-
-                            Label {
-                                id: updateCheckTimeText
-                                text: "Last checked: Today, 18:37"
-                                Layout.fillHeight: true
-                                width: parent.width
-                                font.pointSize: 10
-                                font.bold: false
-                                verticalAlignment: Text.AlignVCenter
-                                horizontalAlignment: Text.AlignLeft
-                            }
-                        }
-                    }
-
-
-                    Button {
-                        width: 40
-                        text: qsTr("Check for updates")
-                    }
+                UpdateTitleBar {
+                    id: updateTitlebar
+                    Layout.fillWidth: true
+                    height: 100
                 }
             }
 
@@ -114,6 +68,12 @@ ItemPage {
             }
         }
 
+    }
+
+    function handle_update_data(data) {
+        control.mUpdateManager.onUpdateDataReply.disconnect(control.handle_update_data)
+        console.log(data);
+        control.ischeckingupdate = false;
     }
 }
 

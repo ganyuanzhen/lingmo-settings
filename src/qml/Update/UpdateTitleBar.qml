@@ -10,6 +10,7 @@ RowLayout {
     spacing: LUI.Units.largeSpacing
 
     signal sendCheckUpdate
+    signal requestDownloadandInstall(string package_name, int index)
 
     Item {
         width: 80
@@ -90,7 +91,6 @@ RowLayout {
         onClicked: {
             control.ischeckingupdate = true;
             control.mUpdateManager.onUpdateDataReply.connect(control.handle_update_data)
-            updatetitlebar.onSendCheckUpdate.connect(control.mUpdateManager.startCheckforUpdate);
             updatetitlebar.sendCheckUpdate();
         }
     }
@@ -104,10 +104,21 @@ RowLayout {
         onClicked: {
             control.isupdating = true;
             // 执行安装更新
+            for (let index=0; index < control.updateListModel.count; index++) {
+                let item = control.updateListModel.get(index);
+                updatetitlebar.requestDownloadandInstall(item.package_name, index)
+            }
+
             let install_list = control.updateListModel
             control.isupdating = false;
             control.hasupdate_ = false;
         }
+    }
+
+    Component.onCompleted: {
+        // 注册信号槽
+        updatetitlebar.onSendCheckUpdate.connect(control.mUpdateManager.startCheckforUpdate);
+        updatetitlebar.onRequestDownloadandInstall.connect(control.mUpdateManager.requestDownloadandInstall);
     }
 
 }

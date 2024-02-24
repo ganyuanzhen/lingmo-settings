@@ -1,16 +1,16 @@
 #include "updatemanager.h"
 
 UpdateManager::UpdateManager(QObject* parent) : QObject{parent} {
-  m_manager = std::make_shared<QNetworkAccessManager>(this);
+  m_manager = new QNetworkAccessManager(this);
 }
 
-UpdateManager::~UpdateManager() {}
+UpdateManager::~UpdateManager() { m_manager->deleteLater(); }
 
 void UpdateManager::check_for_update() {
   // 替换为真正的处理函数，待处理
   QString url = "http://127.0.0.1:4523/m1/4053566-0-default/api/update/latest";
   auto req = new QNetworkRequest(QUrl(url));
-  connect(m_manager.get(), SIGNAL(finished(QNetworkReply*)), this,
+  connect(m_manager, SIGNAL(finished(QNetworkReply*)), this,
           SLOT(handle_update_data(QNetworkReply*)));
   m_manager->get(*req);
 }

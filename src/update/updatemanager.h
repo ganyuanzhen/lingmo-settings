@@ -14,7 +14,7 @@ class UpdateManager : public QObject {
    */
   bool has_updates_;
 
-  std::shared_ptr<QNetworkAccessManager> m_manager;
+  QPointer<QNetworkAccessManager> m_manager;
 
  public:
   explicit UpdateManager(QObject* parent = nullptr);

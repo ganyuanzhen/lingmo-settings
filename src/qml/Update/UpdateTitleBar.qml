@@ -16,7 +16,7 @@ RowLayout {
         height: 80
 
         Image {
-            visible: (!control.isupdating) || (!control.ischeckingupdate)
+            visible: (!control.isupdating) && (!control.ischeckingupdate)
             source: LUI.Theme.darkMode ? "qrc:/images/dark/changes-white" : "qrc:/images/light/changes"
             width: parent.width
             height: parent.height
@@ -85,8 +85,8 @@ RowLayout {
         id: checkUpdateButton
         width: 40
         text: qsTr("Check for updates")
-        visible: true
-        enabled: true
+        visible: !control.hasupdate_
+        enabled: !control.ischeckingupdate
         onClicked: {
             control.ischeckingupdate = true;
             control.mUpdateManager.onUpdateDataReply.connect(control.handle_update_data)
@@ -95,9 +95,21 @@ RowLayout {
         }
     }
 
-    onSendCheckUpdate: {
-
+    Button {
+        id: installUpdateButton
+        width: 40
+        text: qsTr("Install updates")
+        visible: control.hasupdate_
+        enabled: !control.isupdating
+        onClicked: {
+            control.isupdating = true;
+            // 执行安装更新
+            let install_list = control.updateListModel
+            control.isupdating = false;
+            control.hasupdate_ = false;
+        }
     }
+
 }
 
 

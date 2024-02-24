@@ -63,7 +63,6 @@ ItemPage {
                 visible: control.hasupdate_ // 有更新才显示列表
                 UpdateItemsView {
                     Layout.fillWidth: true
-                    // visible: enabledConnections.wirelessHwEnabled
                 }
             }
         }
@@ -71,9 +70,31 @@ ItemPage {
     }
 
     function handle_update_data(data) {
-        control.mUpdateManager.onUpdateDataReply.disconnect(control.handle_update_data)
-        console.log(data);
+        control.mUpdateManager.onUpdateDataReply.disconnect(control.handle_update_data);
+        // 解析版本信息
+        let update_info = JSON.parse(data);
+        let update_list = compare_version(update_info);
+
+        // 初始化ListModel，清空旧数据
+        control.updateListModel.clear();
+        control.updateListModel.append(update_list);
+        control.hasupdate_ = true;
         control.ischeckingupdate = false;
+    }
+
+    function compare_version(json_data) {
+        let data_root = json_data.data;
+
+        let update_list = [];
+        // ToDo: 进行版本信息比较
+        // for ....
+        data_root.forEach((element) => {
+            // 调用C++中的方法比较远程中的版本号和本地的
+            // 先跳过
+            update_list.push(element);
+        });
+
+        return update_list;
     }
 }
 

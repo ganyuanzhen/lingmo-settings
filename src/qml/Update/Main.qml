@@ -62,12 +62,24 @@ ItemPage {
                 id: updateListRoot
                 visible: control.hasupdate_ // 有更新才显示列表
                 UpdateItemsView {
+                    id: updateItemsView
                     Layout.fillWidth: true
                 }
             }
         }
 
     }
+
+    Component.onCompleted: {
+        // 注册信号槽
+        updateTitlebar.onSendCheckUpdate.connect(control.mUpdateManager.startCheckforUpdate);
+        updateTitlebar.onRequestDownloadandInstall.connect(control.mUpdateManager.requestDownloadandInstall);
+
+        control.mUpdateManager.onAddedToProcessingQueue.connect(updateItemsView.soltAddedToProcessingQueue);
+        control.mUpdateManager.onItemDownloadError.connect(updateItemsView.soltItemDownloadError);
+        control.mUpdateManager.onItemDownloadFinished.connect(updateItemsView.soltItemDownloadFinished);
+    }
+
 
     function handle_update_data(data) {
         control.mUpdateManager.onUpdateDataReply.disconnect(control.handle_update_data);
@@ -91,6 +103,9 @@ ItemPage {
         data_root.forEach((element) => {
             // 调用C++中的方法比较远程中的版本号和本地的
             // 先跳过
+
+            // 初始化状态信息
+            element.status = "Queued";
             update_list.push(element);
         });
 

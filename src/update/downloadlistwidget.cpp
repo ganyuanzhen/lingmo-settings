@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2024 LingmoOS Team.
+ *
+ * Author:     Elysia <c.elysia@foxmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "downloadlistwidget.h"
 
 #include <QDebug>
@@ -31,7 +50,7 @@ DownloadListWidget::DownloadListWidget(QObject *parent) : QObject(parent) {
     if (isdownload) {
       downloaditemlist[nowDownload - 1]->speed = theSpeed;
     } else {
-      emit downloadProgress(0);
+      // emit downloadProgress(-1, 0);
     }
   });
 }
@@ -65,6 +84,7 @@ DownloadItem *DownloadListWidget::addItem(QString name, QString fileName,
   }
 
   urList.append(downloadurl);
+  indexList.append(index);
   allDownload += 1;
   toDownload += 1;
 
@@ -79,7 +99,7 @@ DownloadItem *DownloadListWidget::addItem(QString name, QString fileName,
 
   if (!isBusy) {
     nowDownload += 1;
-    startRequest(urList.at(nowDownload - 1), fileName);  // 进行链接请求
+    startRequest(urList.at(nowDownload - 1), fileName, index);  // 进行链接请求
   }
 
   return di;
@@ -91,7 +111,8 @@ QList<DownloadItem *> DownloadListWidget::getDIList() {
 
 QList<QString> DownloadListWidget::getUrlList() { return urList; }
 
-void DownloadListWidget::startRequest(QString url, QString fileName) {
+void DownloadListWidget::startRequest(QString url, QString fileName,
+                                      int index) {
   isBusy = true;
   isdownload = true;
   downloaditemlist[allDownload - 1]->free = false;
@@ -110,9 +131,30 @@ void DownloadListWidget::startRequest(QString url, QString fileName) {
   connect(downloadController, &DownloadController::downloadFinished, this,
           &DownloadListWidget::httpFinished);
   connect(downloadController, &DownloadController::errorOccur, this,
-          [=](QString msg) { qDebug() << msg; });
+          [=, this](int index, QString msg) {
+            qDebug() << index << " " << msg;
+            isdownload = false;
+            isBusy = false;
+            emit downloadError(index);
+
+            if (nowDownload < allDownload) {
+              // 如果有排队则下载下一个
+              qDebug() << "Download: 切换下一个下载...";
+              nowDownload += 1;
+              while (nowDownload <= allDownload &&
+                     downloaditemlist[nowDownload - 1]->downloadCancelled_) {
+                nowDownload += 1;
+              }
+              if (nowDownload <= allDownload) {
+                QString fileName =
+                    downloaditemlist[nowDownload - 1]->getFileName();
+                startRequest(urList.at(nowDownload - 1), fileName,
+                             indexList.at(nowDownload - 1));
+              }
+            }
+          });
   downloadController->setFilename(fileName);
-  downloadController->startDownload(url);
+  downloadController->startDownload(url, index);
 }
 
 /***************************************************************
@@ -121,7 +163,7 @@ void DownloadListWidget::startRequest(QString url, QString fileName) {
  *  @note      如果正在安装，则在新开的线程空间中等待上一个安装完
  *  @Sample usage:
  **************************************************************/
-void DownloadListWidget::httpFinished()  // 完成下载
+void DownloadListWidget::httpFinished(int index)  // 完成下载
 {
   isdownload = false;
   isBusy = false;
@@ -134,7 +176,7 @@ void DownloadListWidget::httpFinished()  // 完成下载
       continue;
     }
     downloaditemlist[nowDownload - 1]->free = true;
-    emit downloadFinished();
+    emit downloadFinished(index);
 
     if (nowDownload < allDownload) {
       // 如果有排队则下载下一个
@@ -146,13 +188,14 @@ void DownloadListWidget::httpFinished()  // 完成下载
       }
       if (nowDownload <= allDownload) {
         QString fileName = downloaditemlist[nowDownload - 1]->getFileName();
-        startRequest(urList.at(nowDownload - 1), fileName);
+        startRequest(urList.at(nowDownload - 1), fileName,
+                     indexList.at(nowDownload - 1));
       }
     }
   });
 }
 
-void DownloadListWidget::updateDataReadProgress(QString speedInfo,
+void DownloadListWidget::updateDataReadProgress(int index, QString speedInfo,
                                                 qint64 bytesRead,
                                                 qint64 totalBytes) {
   if (totalBytes <= 0) {
@@ -162,14 +205,14 @@ void DownloadListWidget::updateDataReadProgress(QString speedInfo,
   downloaditemlist[nowDownload - 1]->setMax(10000);  // 最大值
   downloaditemlist[nowDownload - 1]->setValue(
       int(bytesRead * 100 / totalBytes) * 100);  // 当前值
-  emit downloadProgress(int(bytesRead * 100 / totalBytes));
+  emit downloadProgress(index, int(bytesRead * 100 / totalBytes));
   download_size = bytesRead;
   if (downloaditemlist[nowDownload - 1]->downloadCancelled_) {
     // 随时检测下载是否被取消
     downloadController->disconnect();
     downloadController->stopDownload();
     downloaditemlist[nowDownload - 1]->closeDownload();
-    httpFinished();
+    httpFinished(0);
   }
 }
 

@@ -27,13 +27,22 @@
 UpdateManager::UpdateManager(QObject* parent) : QObject{parent} {
   m_manager = std::make_shared<QNetworkAccessManager>();
   setDownloadWidget(new DownloadListWidget);
+
+  // 注册信号槽
+  connect(dw, &DownloadListWidget::downloadError, this,
+          &UpdateManager::onDownloadError, Qt::QueuedConnection);
+  connect(dw, &DownloadListWidget::downloadFinished, this,
+          &UpdateManager::onDownloadFinished, Qt::QueuedConnection);
+  connect(dw, &DownloadListWidget::downloadProgress, this,
+          &UpdateManager::onDownloadProgress, Qt::QueuedConnection);
 }
 
 UpdateManager::~UpdateManager() { dw->deleteLater(); }
 
 void UpdateManager::check_for_update() {
   // 替换为真正的处理函数，待处理
-  QString url = "http://127.0.0.1:4523/m1/4053566-0-default/api/update/latest";
+  QString url =
+      "http://127.0.0.1:4523/m1/4053566-0-default/api/update/latest?num=2";
   auto req = new QNetworkRequest(QUrl(url));
   connect(m_manager.get(), SIGNAL(finished(QNetworkReply*)), this,
           SLOT(handle_update_data(QNetworkReply*)));
@@ -43,8 +52,8 @@ void UpdateManager::check_for_update() {
 bool UpdateManager::hasUpdate() { return has_updates_; }
 
 void UpdateManager::handle_update_data(QNetworkReply* reply) {
-  if (reply->url() ==
-      QUrl("http://127.0.0.1:4523/m1/4053566-0-default/api/update/latest")) {
+  if (reply->url() == QUrl("http://127.0.0.1:4523/m1/4053566-0-default/api/"
+                           "update/latest?num=2")) {
     emit updateDataReply(reply->readAll());
   }
   reply->deleteLater();
@@ -89,8 +98,15 @@ void UpdateManager::setDownloadWidget(DownloadListWidget* dw_) {
     dw->deleteLater();
     dw = nullptr;
   }
-
   dw = dw_;
 };
 
 void UpdateManager::handleDownloadResult(int status, int index) {}
+
+void UpdateManager::onDownloadFinished(int index) {
+  emit itemDownloadFinished(index);
+}
+void UpdateManager::onDownloadProgress(int index, int i) {}
+void UpdateManager::onDownloadError(int index) {
+  emit itemDownloadError(index);
+}

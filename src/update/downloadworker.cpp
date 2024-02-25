@@ -74,15 +74,14 @@ void gennerateDomain(QVector<QString> &domains) {
 /**
  * @brief 开始下载
  */
-void DownloadController::startDownload(const QString &url) {
+void DownloadController::startDownload(const QString &url, int index) {
   // 获取下载任务信息
   fileSize = getFileSize(url);
   if (fileSize == 0) {
-    emit errorOccur("文件大小获取失败");
+    emit errorOccur(index, "文件大小获取失败");
     return;
   }
 
-  auto timeoutTimer = new QTimer(this);
   QtConcurrent::run([=, this]()  {
     gennerateDomain(domains);
     qDebug() << domains << domains.size();
@@ -130,11 +129,11 @@ void DownloadController::startDownload(const QString &url) {
     cmd.setProcessChannelMode(QProcess::MergedChannels);
     cmd.setProgram("aria2c");
     cmd.setArguments(command);
-    cmd.start();
+    //cmd.start();
     cmd.waitForStarted(-1);  // 等待启动完成
 
     // Timer
-    timeoutTimer->moveToThread(QThread::currentThread());
+    auto timeoutTimer = new QTimer();
     timeoutTimer->setSingleShot(true);  // 单次触发
     connect(timeoutTimer, &QTimer::timeout, [&]() {
       if (failDownloadTimes < maxRetryTimes) {
@@ -144,13 +143,14 @@ void DownloadController::startDownload(const QString &url) {
         failDownloadTimes += 1;
         timeoutTimer->start(MAXWAITTIME);  // 重新启动定时器
       } else {
-        emit errorOccur(tr("Download Failed, please retry :("));  // 下载失败
+        emit errorOccur(index, tr("Download Failed, please retry :("));  // 下载失败
         downloadSuccess = false;
         cmd.close();
         cmd.terminate();        // 终止当前的下载进程
         cmd.waitForFinished();  // 等待进程结束
       }
     });
+
 
     connect(&cmd, &QProcess::readyReadStandardOutput, [&]() {
       timeoutTimer->start(MAXWAITTIME);  // 重置超时计时器，15秒超时
@@ -185,17 +185,27 @@ void DownloadController::startDownload(const QString &url) {
       }
       if (percentInfo == "OK") {
         finished = true;
-        emit downloadProcess("", fileSize, fileSize);
+        emit downloadProcess(index, "", fileSize, fileSize);
         qDebug() << "finished:" << finished;
       } else {
-        emit downloadProcess(speedInfo, downloadSizeRecord, fileSize);
+        emit downloadProcess(index, speedInfo, downloadSizeRecord, fileSize);
       }
     });
     connect(&cmd, &QProcess::readyReadStandardError, [&]() {
-      emit errorOccur(cmd.readAllStandardError().data());
+      emit errorOccur(index, cmd.readAllStandardError().data());
       downloadSuccess = false;
       cmd.close();
     });
+
+    connect(&cmd, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [&](int exitCode, QProcess::ExitStatus exitStatus) {
+      if (exitCode) {
+        emit errorOccur(index, "下载程序异常退出");
+        downloadSuccess = false;
+        cmd.close();
+      }
+    });
+
+    cmd.start();
 
     pidNumber = cmd.processId();
 
@@ -206,7 +216,7 @@ void DownloadController::startDownload(const QString &url) {
       return;
     }
 
-    emit downloadFinished();
+    emit downloadFinished(index);
   });
 }
 

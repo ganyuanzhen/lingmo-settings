@@ -57,7 +57,7 @@ Item {
                 }
 
                 Label {
-                    text: "Change Me"
+                    text: status
                 }
             }
 

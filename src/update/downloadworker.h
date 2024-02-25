@@ -33,16 +33,16 @@ class DownloadController : public QObject {
   explicit DownloadController(QObject *parent = nullptr);
 
   void setFilename(QString filename);
-  void startDownload(const QString &url);
+  void startDownload(const QString &url, int index);
   void stopDownload();
   void restartDownload(QProcess &cmd, const QStringList &command);
   qint64 getFileSize(const QString &url);
   QString replaceDomain(QString url, const QString domain);
 
  signals:
-  void errorOccur(const QString &msg);
-  void downloadProcess(QString, qint64, qint64);
-  void downloadFinished();
+  void errorOccur(int index, const QString &msg);
+  void downloadProcess(int, QString, qint64, qint64);
+  void downloadFinished(int);
 
  private:
   int threadNum;

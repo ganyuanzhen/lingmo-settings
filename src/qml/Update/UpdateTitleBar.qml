@@ -90,7 +90,8 @@ RowLayout {
         enabled: !control.ischeckingupdate
         onClicked: {
             control.ischeckingupdate = true;
-            control.mUpdateManager.onUpdateDataReply.connect(control.handle_update_data)
+            // 每次都需要connect 和 disconnect。否则会重复触发？？
+            control.mUpdateManager.onUpdateDataReply.connect(control.handle_update_data);
             updatetitlebar.sendCheckUpdate();
         }
     }
@@ -108,19 +109,8 @@ RowLayout {
                 let item = control.updateListModel.get(index);
                 updatetitlebar.requestDownloadandInstall(item.name, item.package_name, item.download_link, index);
             }
-
-            let install_list = control.updateListModel;
-            control.isupdating = false;
-            control.hasupdate_ = false;
         }
     }
-
-    Component.onCompleted: {
-        // 注册信号槽
-        updatetitlebar.onSendCheckUpdate.connect(control.mUpdateManager.startCheckforUpdate);
-        updatetitlebar.onRequestDownloadandInstall.connect(control.mUpdateManager.requestDownloadandInstall);
-    }
-
 }
 
 

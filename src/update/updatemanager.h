@@ -61,11 +61,18 @@ class UpdateManager : public QObject {
   void startInstallingPackage(int index);
   void errorInstallingPackage(int index, int error_code);
 
+  void itemDownloadFinished(int index);
+  void itemDownloadError(int index);
+
  public slots:
   void startCheckforUpdate();
   void requestDownloadandInstall(QString name, QString package_name,
                                  QString url, int index);
   void handleDownloadResult(int status, int index);
+
+  void onDownloadFinished(int index);
+  void onDownloadProgress(int index, int i);
+  void onDownloadError(int index);
 };
 
 #endif  // UPDATEMANAGER_H

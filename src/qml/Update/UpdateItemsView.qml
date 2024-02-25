@@ -56,24 +56,16 @@ ColumnLayout {
             }
     }
 
-//    Component.onCompleted: {
-//        let data = [
-//                {
-//                    name: "LingmoOS Insider Preview 3.0",
-//                    status: "Pending install",
-//                    additional_info: "This update improves user experience and system stablity."
-//                },
-//                {
-//                    name: "LingmoOS Insider Preview 3.0",
-//                    status: "Pending install",
-//                    additional_info: "This update improves user experience and system stablity."
-//                },
-//                {
-//                    name: "LingmoOS Insider Preview 3.0",
-//                    status: "Pending install",
-//                    additional_info: "This update improves user experience and system stablity."
-//                }
-//        ];
-//        control.updateListModel.append(data);
-//    }
+    function soltAddedToProcessingQueue(index) {
+        control.updateListModel.setProperty(index, "status", qsTr("Processing"));
+    }
+
+    function soltItemDownloadError(index) {
+        control.updateListModel.setProperty(index, "status", qsTr("Download error"));
+    }
+
+    function soltItemDownloadFinished(index) {
+        control.updateListModel.setProperty(index, "status", qsTr("Download finished"));
+    }
+
 }

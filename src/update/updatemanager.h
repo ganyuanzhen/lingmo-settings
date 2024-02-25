@@ -67,7 +67,7 @@ class UpdateManager : public QObject {
  public slots:
   void startCheckforUpdate();
   void requestDownloadandInstall(QString name, QString package_name,
-                                 QString url, int index);
+                                 QString url, QString filename, int index);
 
   void onDownloadFinished(int index);
   void onDownloadProgress(int index, int i);

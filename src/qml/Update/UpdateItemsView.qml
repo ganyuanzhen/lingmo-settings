@@ -74,10 +74,11 @@ ColumnLayout {
         control.updateListModel.setProperty(index, "status", qsTr("Start installing"));
     }
 
-    function slotErrorInstallingPackage(index) {
+    function slotErrorInstallingPackage(index, code) {
         control.updateListModel.setProperty(index, "status", qsTr("Installation error"));
         control.processed_updates += 1;
         control.has_error_ = true;
+        console.log("Update error code:" + code + " index: " + index);
     }
 
     function slotSuccessfullyInstalledPackage(index) {

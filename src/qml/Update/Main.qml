@@ -66,7 +66,7 @@ ItemPage {
             // 更新列表
             RoundedItem {
                 id: updateListRoot
-                visible: control.hasupdate_ // 有更新才显示列表
+                visible: control.hasupdate_ || control.has_error_ // 有更新或错误才显示列表
                 UpdateItemsView {
                     id: updateItemsView
                     Layout.fillWidth: true
@@ -77,8 +77,11 @@ ItemPage {
     }
 
     onProcessed_updatesChanged: {
-        if (control.processed_updates == control.available_updates) {
+        if (control.processed_updates >= control.available_updates) {
             control.isupdating = false;
+            control.available_updates = 0;
+            control.processed_updates = 0;
+            control.hasupdate_ = false;
         }
     }
 
@@ -90,6 +93,8 @@ ItemPage {
         control.mUpdateManager.onAddedToProcessingQueue.connect(updateItemsView.slotAddedToProcessingQueue);
         control.mUpdateManager.onItemDownloadError.connect(updateItemsView.slotItemDownloadError);
         control.mUpdateManager.onItemDownloadFinished.connect(updateItemsView.slotItemDownloadFinished);
+        control.mUpdateManager.onSuccessfullyInstalledPackage.connect(updateItemsView.slotSuccessfullyInstalledPackage);
+        control.mUpdateManager.onErrorInstallingPackage.connect(updateItemsView.slotErrorInstallingPackage)
     }
 
 

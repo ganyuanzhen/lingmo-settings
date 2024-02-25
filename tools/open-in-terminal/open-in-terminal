@@ -1,5 +1,5 @@
 #!/bin/bash
-source /opt/durapps/spark-store/bin/bashimport/transhell.amber
+source /usr/share/lingmo-settings/tools/bashimport/transhell.amber
 load_transhell
 # 检查是否传入了路径参数
 if [ -z "$1" ]; then

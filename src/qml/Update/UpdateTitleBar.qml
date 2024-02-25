@@ -10,7 +10,7 @@ RowLayout {
     spacing: LUI.Units.largeSpacing
 
     signal sendCheckUpdate
-    signal requestDownloadandInstall(string name, string package_name, string url, int index)
+    signal requestDownloadandInstall(string name, string package_name, string url, string filename, int index)
 
     Item {
         width: 80
@@ -107,7 +107,7 @@ RowLayout {
             // 执行安装更新
             for (let index=0; index < control.updateListModel.count; index++) {
                 let item = control.updateListModel.get(index);
-                updatetitlebar.requestDownloadandInstall(item.name, item.package_name, item.download_link, index);
+                updatetitlebar.requestDownloadandInstall(item.name, item.package_name, item.download_link, item.filename, index);
             }
         }
     }

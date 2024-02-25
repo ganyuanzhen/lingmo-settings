@@ -58,6 +58,8 @@ class UpdateManager : public QObject {
   void updateDataReply(QString data);
   void downloadComplete(QString package_name, int index);
   void addedToProcessingQueue(int index);
+  void startInstallingPackage(int index);
+  void errorInstallingPackage(int index, int error_code);
 
  public slots:
   void startCheckforUpdate();

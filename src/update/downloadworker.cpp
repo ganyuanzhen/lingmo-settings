@@ -24,6 +24,7 @@
 #include <QProcess>
 #include <QRegularExpression>
 #include <QStandardPaths>
+#include <QThread>
 #include <QtConcurrent>
 
 #include "server_config.h"
@@ -81,7 +82,8 @@ void DownloadController::startDownload(const QString &url) {
     return;
   }
 
-  QtConcurrent::run([=, this]() {
+  auto timeoutTimer = new QTimer(this);
+  QtConcurrent::run([=, this]()  {
     gennerateDomain(domains);
     qDebug() << domains << domains.size();
 
@@ -102,8 +104,8 @@ void DownloadController::startDownload(const QString &url) {
 
     // command.append(metaUrl.toUtf8());
 
-    for (int i = 0; i < domains.size(); i++) {  // 遍历域名
-      command.append(replaceDomain(url, domains.at(i))
+    for (const auto & domain : domains) {  // 遍历域名
+      command.append(replaceDomain(url, domain)
                          .replace("+", "%2B")
                          .toUtf8());  // 对+进行转译，避免oss出错
     }
@@ -132,7 +134,7 @@ void DownloadController::startDownload(const QString &url) {
     cmd.waitForStarted(-1);  // 等待启动完成
 
     // Timer
-    QTimer *timeoutTimer = new QTimer(this);
+    timeoutTimer->moveToThread(QThread::currentThread());
     timeoutTimer->setSingleShot(true);  // 单次触发
     connect(timeoutTimer, &QTimer::timeout, [&]() {
       if (failDownloadTimes < maxRetryTimes) {
@@ -240,7 +242,7 @@ qint64 DownloadController::getFileSize(const QString &url) {
   return fileSize;
 }
 
-QString DownloadController::replaceDomain(const QString &url,
+QString DownloadController::replaceDomain(QString url,
                                           const QString domain) {
   QRegularExpression regex(
       R"((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9])");

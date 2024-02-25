@@ -37,7 +37,7 @@ class DownloadController : public QObject {
   void stopDownload();
   void restartDownload(QProcess &cmd, const QStringList &command);
   qint64 getFileSize(const QString &url);
-  QString replaceDomain(const QString &url, const QString domain);
+  QString replaceDomain(QString url, const QString domain);
 
  signals:
   void errorOccur(const QString &msg);

@@ -17,7 +17,7 @@ class DownloadListWidget : public QObject {
   int allDownload = 0;
   int toDownload = 0;
   QList<DownloadItem *> getDIList();
-  QList<QUrl> getUrlList();
+  QList<QString> getUrlList();
   void m_move(int x, int y);
   explicit DownloadListWidget(QObject *parent = nullptr);
   ~DownloadListWidget() override;
@@ -28,7 +28,7 @@ class DownloadListWidget : public QObject {
   int isdownload = false;
   bool isBusy = false;
   QStringList dlist;
-  QList<QUrl> urList;
+  QList<QString> urList;
   QList<DownloadItem *> downloaditemlist;
   DownloadController *downloadController = nullptr;
   int nowdownload = 0;
@@ -37,7 +37,7 @@ class DownloadListWidget : public QObject {
   long download_size = 0;
   long size1 = 0;
   long size2 = 0;
-  void startRequest(QUrl url, QString fileName);
+  void startRequest(QString url, QString fileName);
   void httpFinished();
   void updateDataReadProgress(QString speedInfo, qint64 bytesRead,
                               qint64 totalBytes);

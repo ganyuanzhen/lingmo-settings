@@ -72,6 +72,14 @@ void UpdateManager::requestDownloadandInstall(QString name,
 
   connect(item, SIGNAL(finished(int, int)), this,
           SLOT(handleDownloadResult(int, int)));
+  connect(item, &DownloadItem::startInstallPackage,
+          [=, this](int index_, QString name) {
+            emit startInstallingPackage(index_);
+          });
+  connect(item, &DownloadItem::errorInstallPackage,
+          [=, this](int index_, QString name, int error_code) {
+            emit errorInstallingPackage(index_, error_code);
+          });
 
   emit addedToProcessingQueue(index);
 }

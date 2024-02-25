@@ -89,9 +89,9 @@ QList<DownloadItem *> DownloadListWidget::getDIList() {
   return downloaditemlist;
 }
 
-QList<QUrl> DownloadListWidget::getUrlList() { return urList; }
+QList<QString> DownloadListWidget::getUrlList() { return urList; }
 
-void DownloadListWidget::startRequest(QUrl url, QString fileName) {
+void DownloadListWidget::startRequest(QString url, QString fileName) {
   isBusy = true;
   isdownload = true;
   downloaditemlist[allDownload - 1]->free = false;
@@ -109,10 +109,10 @@ void DownloadListWidget::startRequest(QUrl url, QString fileName) {
           &DownloadListWidget::updateDataReadProgress);
   connect(downloadController, &DownloadController::downloadFinished, this,
           &DownloadListWidget::httpFinished);
-  // connect(downloadController, &DownloadController::errorOccur, this,
-  // [=](QString msg){this->sendNotification(msg);});
+  connect(downloadController, &DownloadController::errorOccur, this,
+          [=](QString msg) { qDebug() << msg; });
   downloadController->setFilename(fileName);
-  downloadController->startDownload(url.toString());
+  downloadController->startDownload(url);
 }
 
 /***************************************************************

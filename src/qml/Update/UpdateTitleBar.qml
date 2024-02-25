@@ -48,9 +48,9 @@ RowLayout {
             Label {
                 id: updateText
                 text: {
-                    if ((!control.isupdating) && (!control.hasupdate_)) {
+                    if ((!control.isupdating) && (!control.hasupdate_) && (!control.has_error_)) {
                         return qsTr("You're up to date");
-                    } else if ((!control.isupdating) && (control.hasupdate_)) {
+                    } else if ((!control.isupdating) && (control.hasupdate_) && (!control.has_error_)) {
                         return qsTr("Updates available");
                     } else if ((control.isupdating)) {
                         return qsTr("Installing updates");

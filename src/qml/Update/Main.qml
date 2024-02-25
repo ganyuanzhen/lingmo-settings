@@ -35,6 +35,12 @@ ItemPage {
 
     property bool ischeckingupdate: false
 
+    property int processed_updates: 0
+
+    property int available_updates: 0
+
+    property bool has_error_: false
+
     property var mUpdateManager: UpdateManager {}
 
     property var updateListModel: ListModel {}
@@ -70,14 +76,20 @@ ItemPage {
 
     }
 
+    onProcessed_updatesChanged: {
+        if (control.processed_updates == control.available_updates) {
+            control.isupdating = false;
+        }
+    }
+
     Component.onCompleted: {
         // 注册信号槽
         updateTitlebar.onSendCheckUpdate.connect(control.mUpdateManager.startCheckforUpdate);
         updateTitlebar.onRequestDownloadandInstall.connect(control.mUpdateManager.requestDownloadandInstall);
 
-        control.mUpdateManager.onAddedToProcessingQueue.connect(updateItemsView.soltAddedToProcessingQueue);
-        control.mUpdateManager.onItemDownloadError.connect(updateItemsView.soltItemDownloadError);
-        control.mUpdateManager.onItemDownloadFinished.connect(updateItemsView.soltItemDownloadFinished);
+        control.mUpdateManager.onAddedToProcessingQueue.connect(updateItemsView.slotAddedToProcessingQueue);
+        control.mUpdateManager.onItemDownloadError.connect(updateItemsView.slotItemDownloadError);
+        control.mUpdateManager.onItemDownloadFinished.connect(updateItemsView.slotItemDownloadFinished);
     }
 
 
@@ -109,6 +121,7 @@ ItemPage {
             update_list.push(element);
         });
 
+        control.available_updates = update_list.length;
         return update_list;
     }
 }

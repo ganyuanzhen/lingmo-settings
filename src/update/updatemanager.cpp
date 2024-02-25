@@ -79,8 +79,15 @@ void UpdateManager::requestDownloadandInstall(QString name,
     return;
   }
 
-  connect(item, SIGNAL(finished(int, int)), this,
-          SLOT(handleDownloadResult(int, int)));
+  connect(item, &DownloadItem::finished, [=, this](int status, int index) {
+    if (status) {
+      // 安装成功
+      emit successfullyInstalledPackage(index);
+    } else {
+      // 出错了
+      emit errorInstallingPackage(index, 0x03);
+    }
+  });
   connect(item, &DownloadItem::startInstallPackage,
           [=, this](int index_, QString name) {
             emit startInstallingPackage(index_);
@@ -100,8 +107,6 @@ void UpdateManager::setDownloadWidget(DownloadListWidget* dw_) {
   }
   dw = dw_;
 };
-
-void UpdateManager::handleDownloadResult(int status, int index) {}
 
 void UpdateManager::onDownloadFinished(int index) {
   emit itemDownloadFinished(index);

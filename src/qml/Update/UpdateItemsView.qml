@@ -56,16 +56,32 @@ ColumnLayout {
             }
     }
 
-    function soltAddedToProcessingQueue(index) {
+    function slotAddedToProcessingQueue(index) {
         control.updateListModel.setProperty(index, "status", qsTr("Processing"));
     }
 
-    function soltItemDownloadError(index) {
+    function slotItemDownloadError(index) {
         control.updateListModel.setProperty(index, "status", qsTr("Download error"));
+        control.processed_updates += 1;
+        control.has_error_ = true;
     }
 
-    function soltItemDownloadFinished(index) {
+    function slotItemDownloadFinished(index) {
         control.updateListModel.setProperty(index, "status", qsTr("Download finished"));
     }
 
+    function slotStartInstallingPackage(index) {
+        control.updateListModel.setProperty(index, "status", qsTr("Start installing"));
+    }
+
+    function slotErrorInstallingPackage(index) {
+        control.updateListModel.setProperty(index, "status", qsTr("Installation error"));
+        control.processed_updates += 1;
+        control.has_error_ = true;
+    }
+
+    function slotSuccessfullyInstalledPackage(index) {
+        control.updateListModel.setProperty(index, "status", qsTr("Successfully installed"));
+        control.processed_updates += 1;
+    }
 }

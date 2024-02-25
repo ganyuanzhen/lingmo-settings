@@ -56,10 +56,10 @@ class UpdateManager : public QObject {
 
  signals:
   void updateDataReply(QString data);
-  void downloadComplete(QString package_name, int index);
   void addedToProcessingQueue(int index);
   void startInstallingPackage(int index);
   void errorInstallingPackage(int index, int error_code);
+  void successfullyInstalledPackage(int index);
 
   void itemDownloadFinished(int index);
   void itemDownloadError(int index);
@@ -68,7 +68,6 @@ class UpdateManager : public QObject {
   void startCheckforUpdate();
   void requestDownloadandInstall(QString name, QString package_name,
                                  QString url, int index);
-  void handleDownloadResult(int status, int index);
 
   void onDownloadFinished(int index);
   void onDownloadProgress(int index, int i);
